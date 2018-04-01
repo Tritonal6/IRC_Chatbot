@@ -1,7 +1,8 @@
 #!/usr/bin/python3
 import socket
+import sys
 
-ircsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+ircsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # Hey, I'm telling you to use IPv4.
 server = "chat.freenode.net" # Server
 channel = "##bot-testing" # IRC Channel
 botnick = "TestTubeBaby" # Bot nickname
@@ -23,7 +24,7 @@ def joinchan(chan): # join channel(s)
 		print(ircmsg) # Print the IRC message.
 
 def ping(): # respond to server pings
-	ircsock.send(bytes("Pong :pingis\n", "UTF-8")) # Respond pong to the server ping to show we're still alive.
+	ircsock.send(bytes("PONG :pingis\n", "UTF-8")) # Respond pong to the server ping to show we're still alive.
 
 """
  By now, all of our major preparations are complete. We can now write a few functions that way our
@@ -51,28 +52,28 @@ def main(): # Things are about to get long. Really, REALLY long.
 			if len(name) < 17:
 				if message.find('Hi ' + botnick) != -1:
 					sendmsg("Hello " + name + "!")
-#Here's an example of how you can look for a 'code' at the beginning of a message and parse it to do a specific task.
+# Here's an example of how you can look for a 'code' at the beginning of a message and parse it to do a specific task.
 				if message[:5].find('.tell') != -1:
 					target = message.split(' ', 1)[1]
-				if target.find(' ') != -1:
-					message = target.split(' ', 1)[1]
-					target = target.split(' ')[0]
-				else:
-					target = name
-					message = "Could not parse. The message should be in the format of '.tell [target] [message]' to work properly."
+					if target.find(' ') != -1:
+						message = target.split(' ', 1)[1]
+						target = target.split(' ')[0]
+					else:
+						target = name
+						message = "Could not parse. The message should be in the format of '.tell [target] [message]' to work properly."
 					sendmsg(message, target)
-# Yay for infinity loop functions and stuff. Time to create the omega to the alpha
+# Time to end our infinity loop that we've created.
 # We'll check for some text and use that to end the loop. We'll end the script on the call to main()
-		if name.lower() == adminname.lower() and message.rstrip() == exitcode:
-			sendmsg("oh...okay. :'(")
-			ircsock.send(bytes("Quit \n", "UTF-8"))
-			return
+			if name.lower() == adminname.lower() and message.rstrip() == exitcode:
+				sendmsg("oh...okay. :'(")
+				ircsock.send(bytes("Quit \n", "UTF-8"))
+				return
 		else:
 # Respond to them pings.
 #If the message ISN'T a PRIVMSG, it still may need some type of response. If the info we received was a PING
 ##request - we'd call the ping() function that we defined earlier to respond with a PONG. This is a way of letting
 ###the server know that we're still online and connected.
 			if ircmsg.find("PING :") != -1:
-				ping()
+				ping() # HI IM STILL HERE.
 
 main() # Start her up fam
